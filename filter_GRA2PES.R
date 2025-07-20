@@ -56,6 +56,7 @@ open_and_pull_surface_co <- function(file_name, GRA2PES_path) {
     day_of_week <- str_split(file_name, "/")[[1]][6]
     original_name <- str_split(file_name, "/")[[1]][7]
 
+    print(paste0(GRA2PES_path, "/CO/"))
     # store in new directory called CO
     newfile <- paste0(GRA2PES_path, "/CO/", str_split(original_name, "Z")[[1]][1], "Z_", day_of_week, "_COsurface.nc")
 

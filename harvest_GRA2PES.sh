@@ -26,23 +26,21 @@ while read -r SECTOR; do
 
         gunzip "$GRA2PES_file" || { echo "Did you misplace your grapes?"; exit 1; }
         
-        echo "gunzip success"
-        
         tar -xf "${GRA2PES_file%.gz}" -C $GRA2PES_dir || { echo "404 grapes not found"; exit 1; }
-        
-        echo "tar success"
-        
+    
         # remove tar file, now data exists in repository with YEARMONTH format
-        rm -rf "${GRA2PES_file%.gz}" || { echo "cleanup failed...grapes everywhere!"; exit 1; }
-        echo "rm success"
+        rm "${GRA2PES_file%.gz}" || { echo "cleanup failed...grapes everywhere!"; exit 1; }
+       
+        echo "Cleaning Complete"
         
         # Process GRA2PES
-        Rscript filter_GRA2PES.R "$SECTOR" "$MONTH" "$GRA2PES_dir" || { echo "R script failed for $SECTOR $MONTH"; exit 1; }
-        echo "script success"
+
+        Rscript filter_GRA2PES.R "$SECTOR" "$YEAR_MONTH" "$GRA2PES_dir" || { echo "R script failed for $SECTOR $YEAR_MONTH"; exit 1; }
+        echo "Filtering Complete"
         
         # Remove GRA2PES YEAR_MONTH Directory now that variable is saved out
         if [[ -n "$GRA2PES_dir" && -n "$YEAR_MONTH" ]]; then
-            rm -rf "${GRA2PES_dir}/${YEAR_MONTH}"
+            rm -r "${GRA2PES_dir}/${YEAR_MONTH}"
         else
             echo "There aren't any grapes over here! Not deleting."
         fi
@@ -54,5 +52,3 @@ while read -r SECTOR; do
     done < "$SCRIPT_DIR/GRA2PES_months.txt"
 
 done < "$SCRIPT_DIR/GRA2PES_sectors.txt"
-
-echo "Batch processing finished."
