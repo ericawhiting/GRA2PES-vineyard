@@ -53,12 +53,11 @@ open_and_pull_surface_co <- function(file_name, GRA2PES_path) {
     var_co <- ncvar_def("CO", "mole km^-2 hr^-1", list(dim_west_east, dim_south_north, dim_Time), missval = NA, prec = "float")
 
     # Create new file and write variables
-    day_of_week <- str_split(file_name, "/")[[1]][6]
     original_name <- str_split(file_name, "/")[[1]][7]
 
     print(paste0(GRA2PES_path, "/CO/"))
     # store in new directory called CO
-    newfile <- paste0(GRA2PES_path, "/CO/", str_split(original_name, "Z")[[1]][1], "Z_", day_of_week, "_COsurface.nc")
+    newfile <- paste0(GRA2PES_path, "/CO/", str_split(original_name, "Z")[[1]][1], "Z_COsurface.nc")
 
     ncnew <- nc_create(newfile, list(var_xlat, var_xlong, var_times, var_co))
 
