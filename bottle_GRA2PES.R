@@ -7,8 +7,10 @@ library(stringr)
 library(abind)
 library(foreach)
 library(doParallel)
+
 # -------------------------
-# Find year, month of grapes files
+# FIND YEAR MONTH OF GRA2PES FILES
+# -------------------------
 read_txt_list <- function(file) {
   lines <- readLines(file)
   lines <- lines[!grepl("^\\s*#", lines)] # skip lines that are commented out, skip whitespace characters
@@ -18,9 +20,15 @@ read_txt_list <- function(file) {
 }
 year_month_list <- read_txt_list("GRA2PES_months.txt")
 
-
-# function to read in year_month
+# -------------------------
+# DEFINE FUNCTION TO READ FILES PER YEAR MONTH
+# -------------------------
 create_monthly_file_from_filtered_GRA2PES <- function(year_month) {
+  #' take in year and month to open GRA2PES files that have one gas at surface level and aggregate
+  #' @param year_month string from year_month_list YYYYMM
+  #' aggregates GRA2PES weekday, saturday, and sunday 00-11 and 12-23 hour files into month
+  #' no return, but saves out a nc file for year month of weighted day of week data for month
+  # -------------------------
   GRA2PES_CO_path <- "/no_backup/erwh/GRA2PES/CO/"
   # -------------------------
   # weekday files
@@ -103,19 +111,20 @@ create_monthly_file_from_filtered_GRA2PES <- function(year_month) {
                       ifelse(weekdays(dates) == "Sunday", "sun",
                             "wk"))
   # -------------------------
-  # arrange nc file in calendary order and stack
+  # arrange nc file in calendar order
   day_arrays <- list(wk = wk_00_23_CO, sat = sa_00_23_CO, sun = su_00_23_CO)
   month_list <- lapply(daytypes, function(dt) day_arrays[[dt]])
 
-  # stack:
+  # stack in calendar order
   month_array <- abind(month_list, along = 4) # new dim: day
 
   # collapse hour and day into just hour of month
   dim(month_array) <- c(dim(month_array)[1:2], 24 * length(dates)) # [lon, lat, 24*n_days]
   month_array_mean <- apply(month_array, c(1, 2), mean, na.rm = TRUE)
+
   # -------------------------
   # Write to NetCDF
-
+  # -------------------------
   # Find x, y, time dimensions
   nx <- dim(month_array)[1]
   ny <- dim(month_array)[2]
@@ -127,41 +136,44 @@ create_monthly_file_from_filtered_GRA2PES <- function(year_month) {
   # Define vars
   XLAT_var <- ncvar_def("XLAT",  units = xlat_units, dim = list(west_east_dim, south_north_dim), missval = NA, prec = "float")
   XLONG_var <- ncvar_def("XLONG", units = xlong_units,  dim = list(west_east_dim, south_north_dim), missval = NA, prec = "float")
-
   CO_var <- ncvar_def("CO", units = var_units, dim = list(west_east_dim, south_north_dim), missval = NA, prec = "float")
 
-  # Create file
+  # Create dir if doesn't exist
   monthly_path <- paste0(GRA2PES_CO_path, "monthly")
   if (!dir.exists(monthly_path)) {
     dir.create(monthly_path)
   }
-
+  # Create file
   nc_monthly <- nc_create(paste0(monthly_path, "/GRA2PESv1.0_total_", year_month, "_COsurface.nc"),
                           list(XLAT_var, XLONG_var, CO_var))
 
-  # add in data
+  # add in data to nc file
   ncvar_put(nc_monthly, XLAT_var, wk_00_11_xlat)
   ncvar_put(nc_monthly, XLONG_var, wk_00_11_xlong)
   ncvar_put(nc_monthly, CO_var, month_array_mean)
 
-  # add attributed
+  # add attributes to nc file
   ncatt_put(nc_monthly, "CO", "_FillValue", NaN)
   ncatt_put(nc_monthly, "XLAT", "_FillValue", NaN)
   ncatt_put(nc_monthly, "XLONG", "_FillValue", NaN)
-
   ncatt_put(nc_monthly, "CO", "units", var_units)
   ncatt_put(nc_monthly, "XLAT", "units", xlat_units)
   ncatt_put(nc_monthly, "XLONG", "units", xlong_units)
 
   # close nc files
   nc_close(nc_monthly)
+
+  # print status
   print(paste0("GRA2PES bottled for ", year_month))
 }
 
-
+# define parallelization
 num_cores <- 2
 registerDoParallel(cores = num_cores)
 
+# -------------------------
+# ITERATE OVER YEAR MONTHS AND CREATE MONTHLY NC FILES
+# -------------------------
 foreach(i = seq(year_month_list)) %dopar% {
   create_monthly_file_from_filtered_GRA2PES(year_month_list[i])
 }
