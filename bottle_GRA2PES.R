@@ -123,8 +123,10 @@ create_monthly_file_from_filtered_GRA2PES <- function(year_month) {
     month_array <- abind(month_list, along = 4) # new dim: day
 
     # collapse hour and day into just hour of month
-    dim(month_array) <- c(dim(month_array)[1:2], 24 * length(dates)) # [lon, lat, 24*n_days]
-    month_array_mean <- apply(month_array, c(1, 2), mean, na.rm = TRUE)
+    dim(month_array) <- c(dim(month_array)[1:2], 24 * length(dates)) # dim: lon, lat, 24*n_days
+
+    # find average across all days/hours of the month
+    month_array_mean <- apply(month_array, c(1, 2), mean, na.rm = TRUE) # dim: lat, lon
 
     # -------------------------
     # Write to NetCDF
