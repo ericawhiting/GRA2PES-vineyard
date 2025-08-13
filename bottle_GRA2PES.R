@@ -112,37 +112,23 @@ create_monthly_file_from_filtered_GRA2PES <- function(year_month) {
 
   # collapse hour and day into just hour of month
   dim(month_array) <- c(dim(month_array)[1:2], 24 * length(dates)) # [lon, lat, 24*n_days]
+  month_array_mean <- apply(month_array, c(1, 2), mean, na.rm = TRUE)
   # -------------------------
   # Write to NetCDF
 
   # Find x, y, time dimensions
   nx <- dim(month_array)[1]
   ny <- dim(month_array)[2]
-  nt <- dim(month_array)[3]
 
   # Define file dimensions
   west_east_dim <- ncdim_def("west_east", "index", 1:nx)
   south_north_dim <- ncdim_def("south_north", "index", 1:ny)
-  time_dim <- ncdim_def("Time", "index", 1:nt, unlim = TRUE)
-
-  # Prep time formatting
-  # time_vec <- as.POSIXct(rep(dates, each = 24)) + rep(0:23 * 60 * 60, times = length(dates)) # create 24 hours for each day
-  # time_str <- format(time_vec, "%Y-%m-%d %H:%M:%S")
-  # max_str_len <- max(nchar(time_str))
-  # char_split <- strsplit(time_str, "")
-  # time_matrix <- do.call(cbind, char_split)
 
   # Define vars
   XLAT_var <- ncvar_def("XLAT",  units = xlat_units, dim = list(west_east_dim, south_north_dim), missval = NA, prec = "float")
   XLONG_var <- ncvar_def("XLONG", units = xlong_units,  dim = list(west_east_dim, south_north_dim), missval = NA, prec = "float")
 
-  # time_str_dim <- ncdim_def("DateStrLen", "", 1:max_str_len)
-  # Time_str_var <- ncvar_def("Times",
-  #                       paste0("hours since ", dates[1], " 00:00:00"),
-  #                       list(time_str_dim, time_dim), prec = "char")
-
-
-  CO_var <- ncvar_def("CO", units = var_units, dim = list(west_east_dim, south_north_dim, time_dim), missval = NA, prec = "float")
+  CO_var <- ncvar_def("CO", units = var_units, dim = list(west_east_dim, south_north_dim), missval = NA, prec = "float")
 
   # Create file
   monthly_path <- paste0(GRA2PES_CO_path, "monthly")
@@ -156,8 +142,7 @@ create_monthly_file_from_filtered_GRA2PES <- function(year_month) {
   # add in data
   ncvar_put(nc_monthly, XLAT_var, wk_00_11_xlat)
   ncvar_put(nc_monthly, XLONG_var, wk_00_11_xlong)
-  #ncvar_put(nc_monthly, Time_str_var, t(time_matrix))
-  ncvar_put(nc_monthly, CO_var, month_array)
+  ncvar_put(nc_monthly, CO_var, month_array_mean)
 
   # add attributed
   ncatt_put(nc_monthly, "CO", "_FillValue", NaN)
@@ -168,15 +153,13 @@ create_monthly_file_from_filtered_GRA2PES <- function(year_month) {
   ncatt_put(nc_monthly, "XLAT", "units", xlat_units)
   ncatt_put(nc_monthly, "XLONG", "units", xlong_units)
 
-  #ncatt_put(nc_monthly, "Times", "long_name", "char_times")
-
   # close nc files
   nc_close(nc_monthly)
   print(paste0("GRA2PES bottled for ", year_month))
 }
 
 
-num_cores <- 5
+num_cores <- 2
 registerDoParallel(cores = num_cores)
 
 foreach(i = seq(year_month_list)) %dopar% {
