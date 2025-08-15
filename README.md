@@ -9,7 +9,7 @@ harvest_GRA2PES.sh is tailored to download files for a select set of sectors and
 
 ## bottle_GRA2PES.R
 bottle_GRA2PES.R pulls the newly created surface CO nc files for each day of week and set of 12 hours, correctly arranges the hourly data by day of week following a monthly calendar and find monthly mean surface CO flux at each grid cell. User could adjust which hours of the day contribute to the monthly average. The mean monthly CO flux over the extent of GRA2PES is saved as a nc file. CO emissions are mole km^-2 hr^-1 for 4km x 4km cells
-
+```
                            (
 *                           )   *
               )     *      (
@@ -29,3 +29,4 @@ bottle_GRA2PES.R pulls the newly created surface CO nc files for each day of wee
             | _Y_ |    |    \_/   (
 *     jgs   |-----|  __|__   |      *
             `-----`        __|__
+```
