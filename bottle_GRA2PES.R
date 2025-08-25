@@ -156,7 +156,7 @@ create_monthly_file_from_filtered_GRA2PES <- function(year_month, hours_to_avera
       dir.create(monthly_path)
     }
     # create file
-    nc_monthly <- nc_create(paste0(monthly_path, "/GRA2PESv1.0_total_", year_month, "_COsurface.nc"),
+    nc_monthly <- nc_create(paste0(monthly_path, "/GRA2PESv1.0_total_", year_month, "_COsurface_", sprintf("%02d", min(hours_to_average)), "_", sprintf("%02d", max(hours_to_average)), "Z.nc"),
                             list(XLAT_var, XLONG_var, CO_var))
 
     # add in data to nc file
