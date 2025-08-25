@@ -26,9 +26,10 @@ year_month_list <- read_txt_list("GRA2PES_months.txt")
 # -------------------------
 # DEFINE FUNCTION TO READ FILES PER YEAR MONTH
 # -------------------------
-create_monthly_file_from_filtered_GRA2PES <- function(year_month) {
+create_monthly_file_from_filtered_GRA2PES <- function(year_month, hours_to_average = c(0:23)) {
     #' take in year and month to open GRA2PES files that have one gas at surface level and aggregate
     #' @param year_month string from year_month_list YYYYMM
+    #' @param hours_to_average vector of hours to include in monthly average, default is all hours c(0:23)
     #' aggregates GRA2PES weekday, saturday, and sunday 00-11 and 12-23 hour files into month
     #' no return, but saves out a nc file for year month of weighted day of week data for month
     #' CO surface data saved as mole km^-2 hr^-1 for 4km x 4km cells
@@ -125,8 +126,13 @@ create_monthly_file_from_filtered_GRA2PES <- function(year_month) {
     # collapse hour and day into just hour of month
     dim(month_array) <- c(dim(month_array)[1:2], 24 * length(dates)) # dim: lon, lat, 24*n_days
 
+
+    hour_array <- rep(c(0:23), dim(month_array)[3] / 24)
+    # pull hours that are specified in hours_to_average
+    cropped_month_array <- month_array[, , hour_array[hour_array == hours_to_average]]
+
     # find average across all days/hours of the month
-    month_array_mean <- apply(month_array, c(1, 2), mean, na.rm = TRUE) # dim: lat, lon
+    month_array_mean <- apply(cropped_month_array, c(1, 2), mean, na.rm = TRUE) # dim: lat, lon
 
     # -------------------------
     # Write to NetCDF
