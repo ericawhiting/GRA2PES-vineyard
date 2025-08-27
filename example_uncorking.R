@@ -45,7 +45,7 @@ for (file in list.files(bottled_path, full.names = TRUE)) {
     CO <- ncvar_get(nc, "CO")
     CO <- t(CO[, ncol(CO):1]) # confirmed orientation by plotting plot(log(rast(CO)))
     # convert from fluxes to emissions
-    CO <- CO * 4 * 4  * 16.04 / (3600 * 1000) # (mole km^-2 hr^-1) * (km^2) * (g mole^-1) * (hr s^-1) * (kg g^-1) => kgCO s^-1
+    CO <- CO * 4 * 4  * 28.01 / (3600 * 1000) # (mole km^-2 hr^-1) * (km^2) * (g mole^-1) * (hr s^-1) * (kg g^-1) => kgCO s^-1
     nc_close(nc)
 
     # crop out urban domain
