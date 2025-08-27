@@ -129,7 +129,7 @@ create_monthly_file_from_filtered_GRA2PES <- function(year_month, hours_to_avera
 
     hour_array <- rep(c(0:23), dim(month_array)[3] / 24)
     # pull hours that are specified in hours_to_average
-    cropped_month_array <- month_array[, , hour_array[hour_array == hours_to_average]]
+    cropped_month_array <- month_array[, , which(hour_array %in% hours_to_average)]
 
     # find average across all days/hours of the month
     month_array_mean <- apply(cropped_month_array, c(1, 2), mean, na.rm = TRUE) # dim: lat, lon
@@ -187,5 +187,5 @@ registerDoParallel(cores = num_cores)
 # ITERATE OVER YEAR MONTHS AND CREATE MONTHLY NC FILES
 # -------------------------
 foreach(i = seq(year_month_list)) %dopar% {
-  create_monthly_file_from_filtered_GRA2PES(year_month_list[i])
+  create_monthly_file_from_filtered_GRA2PES(year_month_list[i], c(16:21))
 }
