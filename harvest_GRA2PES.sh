@@ -13,11 +13,14 @@ while read -r SECTOR; do
         echo "Harvesting GRA2PES from $YEAR_MONTH, $SECTOR"
         
         # assign url to download files
-        GRA2PES_file_url="https://data.nist.gov/od/ds/mds2-3520/GRA2PESv1.0_${SECTOR}_${YEAR_MONTH}.tar.gz"
+        YEAR="${text:0:4}"
+        # now downloaded through noaa csl rather than nist.gov
+        # GRA2PES_file_url="https://data.nist.gov/od/ds/mds2-3520/GRA2PESv1.0_${SECTOR}_${YEAR_MONTH}.tar.gz"
+        GRA2PES_file_url="https://csl.noaa.gov/groups/csl4/gra2pes/datasets/data_v1.1/${YEAR}/GRA2PESv1.1_${SECTOR}_${YEAR_MONTH}.tar.gz"
         
         # assign file to download as
         GRA2PES_dir="/no_backup/erwh/GRA2PES" # where to store GRA2PES data
-        GRA2PES_file="${GRA2PES_dir}/GRA2PESv1.0_${SECTOR}_${YEAR_MONTH}.tar.gz" # for squashing
+        GRA2PES_file="${GRA2PES_dir}/GRA2PESv1.1_${SECTOR}_${YEAR_MONTH}.tar.gz" # for squashing
 
         # transfer GRA2PES file that matches month_year (ex: 202101)
         wget -nv -O "$GRA2PES_file" "$GRA2PES_file_url" || { echo "Uh oh! Can't find the GRA2PES file of that vintage ($SECTOR $YEAR_MONTH)"; exit 1; }
