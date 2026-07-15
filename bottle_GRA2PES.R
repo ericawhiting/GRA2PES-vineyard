@@ -37,14 +37,14 @@ create_monthly_file_from_filtered_GRA2PES <- function(year_month, hours_to_avera
     GRA2PES_CO_path <- "/no_backup/erwh/GRA2PES/CO/"
     # -------------------------
     # weekday files
-    wk_00_11 <- nc_open(paste0(GRA2PES_CO_path, "GRA2PESv1.0_total_", year_month, "_weekdy_00to11Z_weekdy_COsurface.nc"))
-    wk_12_23 <- nc_open(paste0(GRA2PES_CO_path, "GRA2PESv1.0_total_", year_month, "_weekdy_12to23Z_weekdy_COsurface.nc"))
+    wk_00_11 <- nc_open(paste0(GRA2PES_CO_path, "GRA2PESv1.1_total_", year_month, "_weekdy_00to11Z_weekdy_COsurface.nc"))
+    wk_12_23 <- nc_open(paste0(GRA2PES_CO_path, "GRA2PESv1.1_total_", year_month, "_weekdy_12to23Z_weekdy_COsurface.nc"))
     # saturday files
-    sa_00_11 <- nc_open(paste0(GRA2PES_CO_path, "GRA2PESv1.0_total_", year_month, "_satdy_00to11Z_satdy_COsurface.nc"))
-    sa_12_23 <- nc_open(paste0(GRA2PES_CO_path, "GRA2PESv1.0_total_", year_month, "_satdy_12to23Z_satdy_COsurface.nc"))
+    sa_00_11 <- nc_open(paste0(GRA2PES_CO_path, "GRA2PESv1.1_total_", year_month, "_satdy_00to11Z_satdy_COsurface.nc"))
+    sa_12_23 <- nc_open(paste0(GRA2PES_CO_path, "GRA2PESv1.1_total_", year_month, "_satdy_12to23Z_satdy_COsurface.nc"))
     # sunday files
-    su_00_11 <- nc_open(paste0(GRA2PES_CO_path, "GRA2PESv1.0_total_", year_month, "_sundy_00to11Z_sundy_COsurface.nc"))
-    su_12_23 <- nc_open(paste0(GRA2PES_CO_path, "GRA2PESv1.0_total_", year_month, "_sundy_12to23Z_sundy_COsurface.nc"))
+    su_00_11 <- nc_open(paste0(GRA2PES_CO_path, "GRA2PESv1.1_total_", year_month, "_sundy_00to11Z_sundy_COsurface.nc"))
+    su_12_23 <- nc_open(paste0(GRA2PES_CO_path, "GRA2PESv1.1_total_", year_month, "_sundy_12to23Z_sundy_COsurface.nc"))
     # -------------------------
     # var: "XLAT"  "XLONG" "Times" "CO"
     wk_00_11_xlat <- ncvar_get(wk_00_11, "XLAT")
@@ -156,7 +156,7 @@ create_monthly_file_from_filtered_GRA2PES <- function(year_month, hours_to_avera
       dir.create(monthly_path)
     }
     # create file
-    nc_monthly <- nc_create(paste0(monthly_path, "/GRA2PESv1.0_total_", year_month, "_COsurface_", sprintf("%02d", min(hours_to_average)), "_", sprintf("%02d", max(hours_to_average)), "Z.nc"),
+    nc_monthly <- nc_create(paste0(monthly_path, "/GRA2PESv1.1_total_", year_month, "_COsurface_", sprintf("%02d", min(hours_to_average)), "_", sprintf("%02d", max(hours_to_average)), "Z.nc"),
                             list(XLAT_var, XLONG_var, CO_var))
 
     # add in data to nc file
@@ -187,5 +187,5 @@ registerDoParallel(cores = num_cores)
 # ITERATE OVER YEAR MONTHS AND CREATE MONTHLY NC FILES
 # -------------------------
 foreach(i = seq(year_month_list)) %dopar% {
-  create_monthly_file_from_filtered_GRA2PES(year_month_list[i], c(16:21))
+  create_monthly_file_from_filtered_GRA2PES(year_month_list[i])
 }
