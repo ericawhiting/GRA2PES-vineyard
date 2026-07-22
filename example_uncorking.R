@@ -31,17 +31,18 @@ latmax <- city_latlon[1] + delta_lat
 # ITERATE OVER MONTHLY FILES
 # -------------------------
 GRA2PES_df <- data.frame(NULL)
-for (file in list.files(bottled_path, full.names = TRUE)) {
+for (file in list.files(bottled_path, full.names = TRUE, pattern = "GRA2PESv1.1")) {
     # file name has format with YYYYMM defining the year, month
     year_month <- str_split(basename(file), "_")[[1]][3]
+    year <- str_sub(year_month, 1, 4)
     month <- str_sub(year_month, 5, 6)
 
     # open nc file based on year_month
     nc <- nc_open(file)
-    XLAT <- ncvar_get(nc, "XLAT")
-    XLAT <- t(XLAT[, ncol(XLAT):1])
-    XLONG <- ncvar_get(nc, "XLONG")
-    XLONG <- t(XLONG[, ncol(XLONG):1])
+    lat <- ncvar_get(nc, "lat")
+    lat <- t(lat[, ncol(lat):1])
+    lon <- ncvar_get(nc, "lon")
+    lon <- t(lon[, ncol(lon):1])
     CO <- ncvar_get(nc, "CO")
     CO <- t(CO[, ncol(CO):1]) # confirmed orientation by plotting plot(log(rast(CO)))
     # convert from fluxes to emissions
@@ -49,9 +50,9 @@ for (file in list.files(bottled_path, full.names = TRUE)) {
     nc_close(nc)
 
     # crop out urban domain
-    mask <- XLONG >= lonmin & XLONG <= lonmax & XLAT >= latmin & XLAT <= latmax
+    mask <- lon >= lonmin & lon <= lonmax & lat >= latmin & lat <= latmax
     CO_in_rectangle <- CO[mask]
 
     # sum monthly CO Emissions [kg s^-1]
-    GRA2PES_df <- rbind(GRA2PES_df, data.frame(month = month, CO = sum(CO_in_rectangle)))
+    GRA2PES_df <- rbind(GRA2PES_df, data.frame(year = year, month = month, CO = sum(CO_in_rectangle)))
 }
