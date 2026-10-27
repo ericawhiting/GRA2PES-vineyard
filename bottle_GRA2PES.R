@@ -131,7 +131,7 @@ process_one_month <- function(year_month, GRA2PES_CO_path, hours_to_average) {
   filename <- paste0(monthly_path,
                       "/GRA2PESv1.1_total_", year_month, "_COsurface_",
                       sprintf("%02d", min(hours_to_average)), "_", sprintf("%02d", max(hours_to_average)), "Z.nc")
-  writeCDF(weighted_mean_CO, filename, "CO", longname = "Carbon Monoxide", unit = "", split = FALSE)
+  writeCDF(weighted_mean_CO, filename, "CO", longname = "Carbon Monoxide", unit = "", split = FALSE, overwrite = TRUE)
 
   message("Finished month: ", year_month)
 }
