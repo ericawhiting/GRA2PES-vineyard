@@ -2,7 +2,7 @@
 set -euo pipefail
 
 MONTH_LIST="GRA2PES_months.txt"
-GRA2PES_CO_path="/no_backup/erwh/GRA2PES/CO"
+GRA2PES_CO_path="/no_backup/erwh/GRA2PES/CO_surface_regridded"
 
 mkdir -p logs
 
